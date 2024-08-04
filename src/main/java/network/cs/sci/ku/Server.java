@@ -2,6 +2,7 @@ package network.cs.sci.ku;
 
 import network.cs.sci.ku.controllers.ParkingController;
 import network.cs.sci.ku.services.ParkingProtocol;
+import network.cs.sci.ku.services.ProtocolPrinter;
 
 import java.io.*;
 import java.net.*;
@@ -41,21 +42,22 @@ public class Server {
 
                 String request;
                 while ((request = in.readLine()) != null) { // receive message(s) from client
-                    System.out.println("Received: " + request);
-                    String response = handleRequest(request);
-                    out.println(response); // send message(s) to client
+                    String message = handleRequest(request);
+                    System.out.println("Server sent message: " + message);
+                    out.println(message); // send message(s) to client
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        private String handleRequest(String request) {
+        private String handleRequest(String response) {
             String serverMessage = null;
             String message = null;
-            request = parkingProtocol.decode(request);
-            int clientStatus = Integer.parseInt(request.substring(0, 3));
-            String context = request.substring(3);
+            response = parkingProtocol.decode(response);
+            int clientStatus = Integer.parseInt(response.substring(0, 3));
+            String context = response.substring(3);
+            ProtocolPrinter.print(1, response, clientStatus, context);
             if (clientStatus == 800) {
                 try {
                     parkingController.register(context);
@@ -82,8 +84,9 @@ public class Server {
                 } catch (IOException e) {
                     message = parkingProtocol.createMessage(Integer.valueOf(e.getMessage()), parkingController.getUserPosition());
                 }
-            } else if (clientStatus == 504) {
-
+            } else if (clientStatus == 805) {
+                double fee = parkingController.getParkingFee();
+                message = parkingProtocol.createMessage(200, String.valueOf(fee));
             }
             return message;
         }

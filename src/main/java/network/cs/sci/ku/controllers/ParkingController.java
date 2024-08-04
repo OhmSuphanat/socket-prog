@@ -101,11 +101,22 @@ public class ParkingController {
 
         for (User user1 : userListCopy) {
             LocalDateTime userLocalDateTime = LocalDateTime.parse(user1.getParkingID(), formatter);
-            if (Duration.between(userLocalDateTime, LocalDateTime.now()).toMinutes() > 5) {
+            if (Duration.between(userLocalDateTime, LocalDateTime.now()).toMinutes() > 24) {
                 parkingLot.removeLicensePlate(user1.getLicensePlate());
                 userList.removeUser(user1); // Remove from the original list
             }
         }
         autosave();
+    }
+
+    public double getParkingFee() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime userLocalDateTime = LocalDateTime.parse(user.getParkingID(), formatter);
+        double fee = 0;
+        double duration = Duration.between(userLocalDateTime, LocalDateTime.now()).toMinutes();
+        if (duration > 1) {
+            fee += (duration-1) * 20;
+        }
+        return fee;
     }
 }
