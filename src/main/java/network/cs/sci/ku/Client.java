@@ -124,8 +124,9 @@ public class Client {
             System.out.print("Type 'fee[f]' to check Parking fee: ");
             while ((userInput=stdIn.readLine()) != null) {
                 if (userInput.equalsIgnoreCase("fee") || userInput.equalsIgnoreCase("f")) {
-                    extendTime(15);
+                    extendTime(30);
                     message = parkingProtocol.createMessage(805);
+                    System.out.println("Client sent message: " + message);
                     out.println(message);
 
                     response = in.readLine();
@@ -168,7 +169,7 @@ public class Client {
     }
 
     public static void extendTime(int seconds) {
-        endTime = endTime.plusSeconds(seconds);
+        endTime = LocalDateTime.now().plusSeconds(seconds);
     }
 }
 
