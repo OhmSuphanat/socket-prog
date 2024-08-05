@@ -8,11 +8,15 @@ import java.net.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Client {
+    private static LocalDateTime endTime;
+    private static ScheduledExecutorService scheduler;
+
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 12345)) {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true); //sender
@@ -27,6 +31,8 @@ public class Client {
             String message = null;
             String response;
             String userID;
+            endTime = LocalDateTime.now().plusSeconds(30);
+            startCountdown();
 
             WelcomePrinter.print();
             System.out.println();
@@ -35,6 +41,7 @@ public class Client {
                 System.out.println("|---                          Authorization...                               ---|");
                 AuthorizedPrinter.print();
                 userInput = stdIn.readLine();
+                extendTime(60);
                 System.out.println();
 
                 if (userInput.equalsIgnoreCase("register") || userInput.equalsIgnoreCase("r")) {
@@ -59,7 +66,7 @@ public class Client {
                 serverStatus = Integer.parseInt(response.substring(0, 3));
                 context = parkingProtocol.getServerMessage(serverStatus);
 
-                ProtocolPrinter.print(response, serverStatus, context);
+                ProtocolPrinter.print(0, response, serverStatus, context);
                 if (serverStatus >= 200 && serverStatus < 300) {
                     break;
                 }
@@ -76,7 +83,7 @@ public class Client {
             serverStatus = Integer.parseInt(response.substring(0, 3));
             context = parkingProtocol.getServerMessage(serverStatus);
             String parkedCoords = response.substring(3);
-            ProtocolPrinter.print(response, serverStatus, context);
+            ProtocolPrinter.print(0, response, serverStatus, context);
 
             message = parkingProtocol.createMessage(803);
             System.out.println("Client sent message: " + message);
@@ -87,10 +94,11 @@ public class Client {
             serverStatus = Integer.parseInt(response.substring(0, 3));
             context = parkingProtocol.getServerMessage(serverStatus);
             String userPosition = response.substring(3);
-            ProtocolPrinter.print(response, serverStatus, context);
+            ProtocolPrinter.print(0, response, serverStatus, context);
             System.out.println();
 
             while (true) {
+                extendTime(30);
                 System.out.println("|---                              ParkingLot                                     ---|");
                 System.out.println("Your ParkingID is " + "'" + userID + "'.");
                 ParkingLotPrinter.print(userPosition, parkedCoords);
@@ -107,16 +115,29 @@ public class Client {
                     serverStatus = Integer.parseInt(response.substring(0, 3));
                     context = parkingProtocol.getServerMessage(serverStatus);
                     userPosition = response.substring(3);
-                    ProtocolPrinter.print(response, serverStatus, context);
+                    ProtocolPrinter.print(0, response, serverStatus, context);
                     System.out.println();
                     continue;
                 }
                 break;
             }
-            LocalDateTime endTime = LocalDateTime.now().plusSeconds(30);
-            startCountdown(endTime);
-            while ((response=in.readLine()) != null) {
+            System.out.print("Type 'fee[f]' to check Parking fee: ");
+            while ((userInput=stdIn.readLine()) != null) {
+                if (userInput.equalsIgnoreCase("fee") || userInput.equalsIgnoreCase("f")) {
+                    extendTime(30);
+                    message = parkingProtocol.createMessage(805);
+                    System.out.println("Client sent message: " + message);
+                    out.println(message);
 
+                    response = in.readLine();
+                    response = parkingProtocol.decode(response);
+                    serverStatus = Integer.parseInt(response.substring(0, 3));
+                    context = parkingProtocol.getServerMessage(serverStatus);
+                    ProtocolPrinter.print(0, response, serverStatus, context);
+                    double fee = Double.valueOf(response.substring(3));
+                    System.out.println("Parking fee: " + fee + " Baht.");
+                }
+                System.out.print("Type 'fee[f]' to check Parking fee: ");
             }
 
         } catch (UnknownHostException e) {
@@ -128,8 +149,8 @@ public class Client {
         }
     }
 
-    public static void startCountdown(LocalDateTime endTime) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    public static void startCountdown() {
+        scheduler = Executors.newScheduledThreadPool(1);
 
         Runnable countdownTask = new Runnable() {
             @Override
@@ -145,6 +166,10 @@ public class Client {
 
         // Schedule the task to run every second
         scheduler.scheduleAtFixedRate(countdownTask, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public static void extendTime(int seconds) {
+        endTime = LocalDateTime.now().plusSeconds(seconds);
     }
 }
 

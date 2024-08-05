@@ -1,6 +1,12 @@
 {
   "users" : [ {
-    "parkingID" : "20240804023719",
-    "licensePlate" : "ggghhh"
+    "parkingID" : "20240805161413",
+    "licensePlate" : "abcd123"
+  }, {
+    "parkingID" : "20240805162047",
+    "licensePlate" : "asdf55"
+  }, {
+    "parkingID" : "20240805162436",
+    "licensePlate" : "hello345"
   } ]
 }

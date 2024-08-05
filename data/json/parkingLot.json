@@ -4,7 +4,7 @@
     "G2" : null,
     "E1" : null,
     "G3" : null,
-    "E2" : null,
+    "E2" : "hello345",
     "G4" : null,
     "C1" : null,
     "E3" : null,
@@ -15,10 +15,10 @@
     "C3" : null,
     "E5" : null,
     "A2" : null,
-    "C4" : null,
+    "C4" : "abcd123",
     "A3" : null,
-    "C5" : "ggghhh",
-    "A4" : null,
+    "C5" : null,
+    "A4" : "asdf55",
     "A5" : null,
     "F1" : null,
     "F2" : null,
@@ -36,5 +36,5 @@
     "B4" : null,
     "B5" : null
   },
-  "parkedAreas" : [ "C5" ]
+  "parkedAreas" : [ "E2", "C4", "A4" ]
 }
