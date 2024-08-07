@@ -1,45 +1,36 @@
 package network.cs.sci.ku.services;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Base64;
 
-public class ParkingProtocol implements Encoder {
+public abstract class ParkingProtocol {
+    protected String splitRegex = "~";
 
-    @Override
-    public String encode(int status, String context) {
-        String base64 = Base64.getEncoder().encodeToString(context.getBytes());
-        return status+base64;
+    public abstract String decode(String text) throws IOException;
+
+    public String encode(String text) {
+        return Base64.getEncoder().encodeToString(text.getBytes());
     }
 
-    @Override
-    public String decode(String encoded) {
-        int status = Integer.valueOf(encoded.substring(0, 3));
-        String nonBase64 = new String(Base64.getDecoder().decode(encoded.substring(3)));
-        return status + nonBase64;
+    public void sentMessage(PrintWriter writer, String message) {
+        String encoded = encode(message);
+        writer.println(encoded);
     }
 
-    public String getServerMessage(int status) {
-        switch (status) {
-            case 200:
-                return "The request was successful, and the server returned the requested resource.";
-            case 201:
-                return "Your ParkingID is created.";
-            case 202:
-                return "Welcome back!!!";
-            case 400:
-                return "Bad Request, wrong input format.";
-            case 401:
-                return "Unknown ParkingID, please try again, or ParkingID was expired, pay parking ensures spot availability.";
-            case 402:
-                return "This section is unavailable to park.";
+    public String receiveMessage(BufferedReader reader) throws IOException {
+        String response = reader.readLine();
+        if (response != null) {
+            return decode(response);
         }
         return null;
     }
 
-    public String createMessage(int status) {
-        return encode(status, RandomString.getRandomAlphabeticString(110));
+    public String createMessage(String cos, String context) {
+        return cos + "~" + context;
     }
 
-    public String createMessage(int status, String context) {
-        return encode(status, context);
-    }
-}
+    public String createMessage(String cos) {
+        return createMessage(cos, "none");
+    }}

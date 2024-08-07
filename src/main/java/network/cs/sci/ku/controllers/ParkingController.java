@@ -35,9 +35,6 @@ public class ParkingController {
     public void register(String doubleID) throws IOException {
         maintain();
         String[] ids = doubleID.split(" ");
-        if (ids.length > 2) {
-            throw new IOException("400");
-        }
         String parkingID = ids[0];
         String licensePlate = ids[1];
         user = new User(parkingID, licensePlate);
@@ -47,13 +44,9 @@ public class ParkingController {
 
     public void login(String parkingID) throws IOException {
         maintain();
-        if (parkingID.contains(" ")) {
-            throw new IOException("400");
-        }
-
         user = userList.findObjectByPK(parkingID);
         if (user == null) {
-            throw new IOException("401");
+            throw new IOException("400");
         }
     }
 
@@ -62,6 +55,10 @@ public class ParkingController {
         parkingLotHashMapDatasource.writeData(parkingLot);
         userList = (UserList) userListDatasource.readData();
         parkingLot = (ParkingLot) parkingLotHashMapDatasource.readData();
+    }
+
+    public String getParkingInfo() {
+        return getParkedAreas() + " " + getUserPosition();
     }
 
     public String getParkedAreas() {
@@ -88,7 +85,7 @@ public class ParkingController {
         }
         String exist = parkingLot.getParkedCars().get(position);
         if (exist != null) {
-            throw new IOException("402");
+            throw new IOException("401");
         }
         parkingLot.addLicensePlate(position, user.getLicensePlate());
         autosave();

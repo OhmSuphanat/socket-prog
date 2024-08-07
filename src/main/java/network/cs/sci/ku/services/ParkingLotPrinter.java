@@ -1,8 +1,5 @@
 package network.cs.sci.ku.services;
 
-import network.cs.sci.ku.models.ParkingLot;
-
-import java.util.Map;
 
 public class ParkingLotPrinter{
 
