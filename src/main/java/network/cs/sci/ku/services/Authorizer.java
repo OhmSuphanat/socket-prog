@@ -2,7 +2,6 @@ package network.cs.sci.ku.services;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 public class Authorizer {
     public static String register() {
